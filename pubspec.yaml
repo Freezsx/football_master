@@ -40,6 +40,7 @@ dependencies:
   carousel_slider:
   shared_preferences:
   google_fonts:
+  intl:
 
 dev_dependencies:
   flutter_test:
