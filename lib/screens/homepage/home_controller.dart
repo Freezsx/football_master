@@ -14,6 +14,7 @@ class HomeController extends GetxController {
   RxList<InfoEventModel> infoEventModel = <InfoEventModel>[].obs;
   var isLoading = true.obs;
   var currentIndex = 0.obs;
+  var selectedLeague = ''.obs;
 
   @override
   void onInit() {
@@ -27,17 +28,17 @@ class HomeController extends GetxController {
     currentIndex.value = index;
   }
 
+  void selectLeague(String leagueName) {
+    selectedLeague.value = leagueName;
+    update();
+  }
+
   Future<void> fetchFootballList() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      // String? token = prefs.getString('token');
-      // int? idKelas = prefs.getInt('id_kelas');
 
       final response = await http.get(
         Uri.parse('https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=English%20Premier%20League'),
-        // headers: {
-        //   'Authorization': 'Bearer $token',
-        // },
       );
 
       if (response.statusCode == 200) {
@@ -58,14 +59,9 @@ class HomeController extends GetxController {
   Future<void> fetchEventList() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      // String? token = prefs.getString('token');
-      // int? idKelas = prefs.getInt('id_kelas');
 
       final response = await http.get(
-        Uri.parse('https://www.thesportsdb.com//api/v1/json/3/searchevents.php?e=Arsenal_vs_Everton'),
-        // headers: {
-        //   'Authorization': 'Bearer $token',
-        // },
+      Uri.parse('https://www.thesportsdb.com//api/v1/json/3/searchevents.php?e=Arsenal_vs_Chelsea'),
       );
 
       if (response.statusCode == 200) {
@@ -86,14 +82,9 @@ class HomeController extends GetxController {
   Future<void> fetchLeagueList() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      // String? token = prefs.getString('token');
-      // int? idKelas = prefs.getInt('id_kelas');
 
       final response = await http.get(
         Uri.parse('https://www.thesportsdb.com/api/v1/json/3/all_leagues.php'),
-        // headers: {
-        //   'Authorization': 'Bearer $token',
-        // },
       );
 
       if (response.statusCode == 200) {
