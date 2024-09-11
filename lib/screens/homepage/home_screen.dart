@@ -4,6 +4,7 @@ import 'package:football_master/screens/homepage/components/category.dart';
 import 'package:get/get.dart';
 import 'package:football_master/screens/homepage/home_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -42,6 +43,137 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Popular Match',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            SizedBox(height: 15,),
+            Obx(() {
+              if (homeController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (homeController.infoEventModel.isEmpty || homeController.infoEventModel.every((event) => event.event == null || event.event!.isEmpty)) {
+                return const Center(child: Text('No events found'));
+              } else {
+                PageController _pageController = PageController(viewportFraction: 1);
+
+                return SizedBox(
+                  height: screenHeight * 0.3,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: homeController.infoEventModel.expand((event) => event.event!).where((event) => event.strLeague != '0').length,
+                    itemBuilder: (context, index) {
+                      final event = homeController.infoEventModel.expand((event) => event.event!).where((event) => event.strLeague != '0').toList()[index];
+                      print(homeController.infoEventModel);
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 5),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Container(
+                            width: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: Color(0xFF330039),
+                              image: DecorationImage(
+                                image: AssetImage('assets/images/premier-bg.png'),
+                                fit: BoxFit.fitWidth,
+                                opacity: 1.5,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    event.strLeague ?? 'No League',
+                                    style: GoogleFonts.lexend(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    event.dateEvent != null
+                                        ? DateFormat('d MMMM yyyy', 'id_ID').format(DateTime.parse(event.dateEvent!))
+                                        : 'No Date',
+                                    style: GoogleFonts.lexend(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: screenHeight * 0.05),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Container(
+                                            width: 80,
+                                            height: 80,
+                                            child: Image.network(
+                                              event.strHomeTeamBadge ?? 'No Image',
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Image.network(homeController.infoFootballModel[0].teams?[0].strBadge ?? '');
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(height: 5,),
+                                          Text(event.strHomeTeam ?? '', style: TextStyle(color: Colors.white),)
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(event.intHomeScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600),),
+                                          SizedBox(width: 10,),
+                                          Text('-', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600),),
+                                          SizedBox(width: 10,),
+                                          Text(event.intAwayScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600  ),),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          Container(
+                                            width: 80,
+                                            height: 80,
+                                            child: Image.network(
+                                              event.strAwayTeamBadge ?? 'No Image',
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Image.network(
+                                                  (homeController.infoFootballModel.isNotEmpty &&
+                                                      homeController.infoFootballModel[0].teams != null &&
+                                                      homeController.infoFootballModel[0].teams!.length > 5)
+                                                      ? homeController.infoFootballModel[0].teams![5].strBadge ?? 'assets/images/default-badge.png'
+                                                      : 'assets/images/default-badge.png', // Fallback to a default image if not found
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(height: 5,),
+                                          Text(event.strAwayTeam ?? '', style: TextStyle(color: Colors.white),)
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+            }),
+            SizedBox(height: 20,),
             Text(
               'List League',
               style: TextStyle(
@@ -123,135 +255,6 @@ class HomeScreen extends StatelessWidget {
                           title: Text('No team information available'),
                         );
                       }
-                    },
-                  ),
-                );
-              }
-            }),
-            SizedBox(height: 20,),
-            Text(
-              'Popular Match',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            SizedBox(height: 15,),
-            Obx(() {
-              if (homeController.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (homeController.infoEventModel.isEmpty || homeController.infoEventModel.every((event) => event.event == null || event.event!.isEmpty)) {
-                return const Center(child: Text('No events found'));
-              } else {
-                PageController _pageController = PageController(viewportFraction: 1);
-
-                return SizedBox(
-                  height: screenHeight * 0.3,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: homeController.infoEventModel.expand((event) => event.event!).where((event) => event.strLeague != '0').length,
-                    itemBuilder: (context, index) {
-                      final event = homeController.infoEventModel.expand((event) => event.event!).where((event) => event.strLeague != '0').toList()[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 5),
-                        child: Card(
-
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Container(
-                            width: 100,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: Color(0xFF330039),
-                              image: DecorationImage(
-                                image: AssetImage('assets/images/premier-bg.png'),
-                                fit: BoxFit.fitWidth,
-                                opacity: 1.5,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    event.strLeague ?? 'No League',
-                                    style: GoogleFonts.lexend(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    event.dateEvent ?? 'No League',
-                                    style: GoogleFonts.lexend(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(height: screenHeight * 0.05),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Container(
-                                            width: 80,
-                                            height: 80,
-                                            child: Image.network(
-                                              event.strHomeTeamBadge ?? 'No Image',
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return Image.network(homeController.infoFootballModel[0].teams?[0].strBadge ?? '');
-                                              },
-                                            ),
-                                          ),
-                                          SizedBox(height: 5,),
-                                          Text(event.strHomeTeam ?? '', style: TextStyle(color: Colors.white),)
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(event.intHomeScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600),),
-                                          SizedBox(width: 10,),
-                                          Text('-', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600),),
-                                          SizedBox(width: 10,),
-                                          Text(event.intAwayScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600  ),),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Container(
-                                            width: 80,
-                                            height: 80,
-                                            child: Image.network(
-                                              event.strAwayTeamBadge ?? 'No Image',
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return Image.network(
-                                                  (homeController.infoFootballModel.isNotEmpty &&
-                                                      homeController.infoFootballModel[0].teams != null &&
-                                                      homeController.infoFootballModel[0].teams!.length > 5)
-                                                      ? homeController.infoFootballModel[0].teams![5].strBadge ?? 'assets/images/default-badge.png'
-                                                      : 'assets/images/default-badge.png', // Fallback to a default image if not found
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          SizedBox(height: 5,),
-                                          Text(event.strAwayTeam ?? '', style: TextStyle(color: Colors.white),)
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
                     },
                   ),
                 );
