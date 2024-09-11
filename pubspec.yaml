@@ -41,6 +41,7 @@ dependencies:
   shared_preferences:
   google_fonts:
   intl:
+  flutter_custom_clippers:
 
 dev_dependencies:
   flutter_test:

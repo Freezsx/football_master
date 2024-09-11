@@ -1,11 +1,10 @@
 import 'dart:convert';
-
 import 'package:football_master/models/event_model.dart';
 import 'package:football_master/models/league_model.dart';
+import 'package:football_master/url/constant.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../models/football_model.dart';
 
 class HomeController extends GetxController {
@@ -21,7 +20,7 @@ class HomeController extends GetxController {
     super.onInit();
     fetchFootballList();
     fetchLeagueList();
-    fetchEventList();
+    fetchEventList(['Arsenal_vs_Chelsea', 'Arsenal_vs_Everton', 'Arsenal_vs_Liverpool']);
   }
 
   void changeIndex(int index) async {
@@ -56,23 +55,31 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> fetchEventList() async {
+  Future<void> fetchEventList(List<String> eventNames) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      isLoading.value = true; // Set loading to true before starting
+      List<InfoEventModel> events = [];
 
-      final response = await http.get(
-      Uri.parse('https://www.thesportsdb.com//api/v1/json/3/searchevents.php?e=Arsenal_vs_Chelsea'),
-      );
+      for (String eventName in eventNames) {
+        final Map<String, String> queryParams = {
+          'e': eventName,
+        };
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final InfoEventModel eventModel = InfoEventModel.fromJson(data);
-        infoEventModel.value = [eventModel];
-        isLoading.value = false;
-        print('Data Event fetched successfully: ${infoEventModel.length} items');
-      } else {
-        print('Failed to fetch data: ${response.statusCode}');
+        final Uri url = Uri.https(baseUrl, pathEvent, queryParams);
+        final response = await http.get(url);
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final InfoEventModel eventModel = InfoEventModel.fromJson(data);
+          events.add(eventModel);
+        } else {
+          print('Failed to fetch data for $eventName: ${response.statusCode}');
+        }
       }
+
+      infoEventModel.value = events;
+      isLoading.value = false;
+      print('Data Events fetched successfully: ${infoEventModel.length} items');
     } catch (e) {
       print('Error fetching data: $e');
       isLoading.value = false;
