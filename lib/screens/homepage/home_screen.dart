@@ -17,10 +17,10 @@ class HomeScreen extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF9F9F9),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
+        backgroundColor: Color(0xFFF9F9F9),
+        surfaceTintColor: Color(0xFFF9F9F9),
         title: Text(
           'Balbalan',
           style: TextStyle(
@@ -69,15 +69,12 @@ class HomeScreen extends StatelessWidget {
                       print(homeController.infoEventModel);
 
                       return Padding(
-                        padding: const EdgeInsets.only(right: 5),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                        padding: const EdgeInsets.only(right: 10),
+                        child: ClipPath(
+                          clipper: CustomCardClipper(),
                           child: Container(
                             width: 100,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
                               color: Color(0xFF330039),
                               image: DecorationImage(
                                 image: AssetImage('assets/images/premier-bg.png'),
@@ -86,7 +83,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                             child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.07, vertical: 10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -116,8 +113,7 @@ class HomeScreen extends StatelessWidget {
                                       Column(
                                         children: [
                                           Container(
-                                            width: 80,
-                                            height: 80,
+                                            width: screenWidth * 0.18,
                                             child: Image.network(
                                               event.strHomeTeamBadge ?? 'No Image',
                                               errorBuilder: (context, error, stackTrace) {
@@ -131,18 +127,17 @@ class HomeScreen extends StatelessWidget {
                                       ),
                                       Row(
                                         children: [
-                                          Text(event.intHomeScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600),),
+                                          Text(event.intHomeScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: (event.intHomeScore == null) ? screenWidth * 0.05 : screenWidth * 0.07, fontWeight: FontWeight.w600),),
                                           SizedBox(width: 10,),
                                           Text('-', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600),),
                                           SizedBox(width: 10,),
-                                          Text(event.intAwayScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.07, fontWeight: FontWeight.w600  ),),
+                                          Text(event.intAwayScore ?? 'N/A', style: TextStyle(color: Colors.white, fontSize: (event.intAwayScore == null) ? screenWidth * 0.05 : screenWidth * 0.07, fontWeight: FontWeight.w600  ),),
                                         ],
                                       ),
                                       Column(
                                         children: [
                                           Container(
-                                            width: 80,
-                                            height: 80,
+                                            width: screenWidth * 0.18,
                                             child: Image.network(
                                               event.strAwayTeamBadge ?? 'No Image',
                                               errorBuilder: (context, error, stackTrace) {
@@ -196,59 +191,66 @@ class HomeScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final event = homeController.infoLeagueModel[index];
                       if (event.leagues != null && event.leagues!.isNotEmpty) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: event.leagues!.map((league) {
-                            String imageAssetPath;
-                            switch (league.strLeague) {
-                              case 'English Premier League':
-                                imageAssetPath = 'assets/images/premier-bg.png';
-                                break;
-                              case 'Premier League':
-                                imageAssetPath = 'assets/images/premier-bg.png';
-                                break;
-                              case 'Serie A':
-                                imageAssetPath = 'assets/images/premier-bg.png';
-                                break;
-                              case 'Bundesliga':
-                                imageAssetPath = 'assets/images/premier-bg.png';
-                                break;
-                              default:
-                                imageAssetPath = 'assets/images/premier-bg.png';
-                            }
-                            bool isSelected = homeController.selectedLeague.value == league.strLeague;
-                            return InkWell(
-                              onTap: () {
-                                homeController.selectLeague(league.strLeague);
-                                print('Selected league: ${league.strLeague}');
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(10),
-                                margin: EdgeInsets.only(right: screenWidth * 0.04),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isSelected ? Color(0xFF381D53) : Colors.grey.shade100,  // Color change logic
-                                ),
-                                child: ClipOval(
-                                  child: Container(
-                                    margin: EdgeInsets.all(6),
-                                    child: ColorFiltered(
-                                      colorFilter: ColorFilter.mode(
-                                        isSelected ? Color(0xFFF8F8F8) : Color(0xFFC2C2C2),
-                                        BlendMode.srcATop,
+                        return Obx(() => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: event.leagues!.map((league) {
+                              String imageAssetPath;
+                              switch (league.strLeague) {
+                                case 'English Premier League':
+                                  imageAssetPath = 'assets/images/premier-bg.png';
+                                  break;
+                                case 'Premier League':
+                                  imageAssetPath = 'assets/images/premier-bg.png';
+                                  break;
+                                case 'Serie A':
+                                  imageAssetPath = 'assets/images/premier-bg.png';
+                                  break;
+                                case 'Bundesliga':
+                                  imageAssetPath = 'assets/images/premier-bg.png';
+                                  break;
+                                default:
+                                  imageAssetPath = 'assets/images/premier-bg.png';
+                              }
+                              bool isSelected = homeController.selectedLeague.value == league.strLeague;
+                              return Padding(
+                                padding: EdgeInsets.only(right: screenWidth * 0.04),
+                                child: Material(
+                                  type: MaterialType.transparency,
+                                  child: InkWell(
+                                    onTap: () {
+                                      homeController.selectLeague(league.strLeague);
+                                      print('Selected league: ${league.strLeague}');
+                                    },
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 300),  // Animation duration
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: isSelected ? Color(0xFF381D53) : Colors.grey.shade200,
                                       ),
-                                      child: Image.asset(
-                                        imageAssetPath,
-                                        fit: BoxFit.cover,
-                                        height: screenHeight * 0.07,
-                                        width: screenWidth * 0.1,
+                                      child: ClipOval(
+                                        child: Container(
+                                          margin: EdgeInsets.all(6),
+                                          child: ColorFiltered(
+                                            colorFilter: ColorFilter.mode(
+                                              isSelected ? Color(0xFFF8F8F8) : Color(0xFFC2C2C2),
+                                              BlendMode.srcATop,
+                                            ),
+                                            child: Image.asset(
+                                              imageAssetPath,
+                                              fit: BoxFit.cover,
+                                              height: screenHeight * 0.07,
+                                              width: screenWidth * 0.1,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }).toList(),
+                              );
+                            }).toList(),
+                          ),
                         );
                       } else {
                         return const ListTile(
@@ -265,4 +267,35 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class CustomCardClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    double cornerRadius = 20.0;
+    double clippedCornerSize = 40.0;
+
+    // Start from top-left corner
+    path.moveTo(0, cornerRadius);
+    path.quadraticBezierTo(0, 0, cornerRadius, 0); // Top-left corner (rounded)
+
+    // Move to the top-right clipped corner
+    path.lineTo(size.width - 40, 0);
+    path.lineTo(size.width, clippedCornerSize); // Top-right clipped corner
+
+    // Move to the bottom-right rounded corner
+    path.lineTo(size.width, size.height - cornerRadius);
+    path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height); // Bottom-right corner (rounded)
+
+    // Move to the bottom-left clipped corner
+    path.lineTo(clippedCornerSize, size.height);
+    path.lineTo(0, size.height - clippedCornerSize); // Bottom-left clipped corner
+
+    path.close(); // Close the path
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
