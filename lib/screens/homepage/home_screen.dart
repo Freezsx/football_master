@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:football_master/navigation/bottom_navbar.dart';
 import 'package:football_master/screens/homepage/components/category.dart';
 import 'package:get/get.dart';
 import 'package:football_master/screens/homepage/home_controller.dart';
@@ -9,7 +10,7 @@ import 'package:intl/intl.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
 
-  final HomeController homeController = Get.find<HomeController>();
+  final HomePageController homeController = Get.find<HomePageController>();
 
   @override
   Widget build(BuildContext context) {
@@ -272,30 +273,32 @@ class HomeScreen extends StatelessWidget {
 class CustomCardClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
-    final path = Path();
+    var path = Path();
     double cornerRadius = 20.0;
     double clippedCornerSize = 40.0;
 
-    // Start from top-left corner
+    // Top-left rounded corner
     path.moveTo(0, cornerRadius);
-    path.quadraticBezierTo(0, 0, cornerRadius, 0); // Top-left corner (rounded)
+    path.quadraticBezierTo(0, 0, cornerRadius, 0);
 
-    // Move to the top-right clipped corner
-    path.lineTo(size.width - 40, 0);
-    path.lineTo(size.width, clippedCornerSize); // Top-right clipped corner
+    // Top-right clipped corner
+    path.lineTo(size.width - clippedCornerSize, 0);
+    path.lineTo(size.width, clippedCornerSize);
 
-    // Move to the bottom-right rounded corner
+    // Bottom-right rounded corner
     path.lineTo(size.width, size.height - cornerRadius);
-    path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height); // Bottom-right corner (rounded)
+    path.quadraticBezierTo(size.width, size.height, size.width - cornerRadius, size.height);
 
-    // Move to the bottom-left clipped corner
+    // Bottom-left clipped corner
     path.lineTo(clippedCornerSize, size.height);
-    path.lineTo(0, size.height - clippedCornerSize); // Bottom-left clipped corner
+    path.lineTo(0, size.height - clippedCornerSize);
 
-    path.close(); // Close the path
+    path.close();
     return path;
   }
 
   @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
+  }
 }
