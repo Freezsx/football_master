@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/football_model.dart';
 
-class HomeController extends GetxController {
+class HomePageController extends GetxController {
   RxList<InfoFootballModel> infoFootballModel = <InfoFootballModel>[].obs;
   RxList<InfoLeagueModel> infoLeagueModel = <InfoLeagueModel>[].obs;
   RxList<InfoEventModel> infoEventModel = <InfoEventModel>[].obs;
