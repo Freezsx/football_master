@@ -19,6 +19,7 @@ class NavigationMenu extends StatelessWidget {
       }),
       bottomNavigationBar: Obx(() {
         return BottomNavigationBar(
+          backgroundColor: Colors.white,
           type: BottomNavigationBarType.fixed,
           currentIndex: controller.selectedIndex.value,
           onTap: (index) {

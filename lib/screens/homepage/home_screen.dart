@@ -18,10 +18,10 @@ class HomeScreen extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF9F9F9),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFFF9F9F9),
-        surfaceTintColor: Color(0xFFF9F9F9),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         title: Text(
           'Balbalan',
           style: TextStyle(
@@ -40,7 +40,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                 PageController _pageController = PageController(viewportFraction: 1);
 
                 return SizedBox(
-                  height: screenHeight * 0.3,
+                  height: screenHeight * 0.28,
                   child: PageView.builder(
                     controller: _pageController,
                     itemCount: homeController.infoEventModel.expand((event) => event.event!).where((event) => event.strLeague != '0').length,
@@ -74,7 +74,6 @@ class HomeScreen extends StatelessWidget {
                         child: ClipPath(
                           clipper: CustomCardClipper(),
                           child: Container(
-                            width: 100,
                             decoration: BoxDecoration(
                               color: Color(0xFF330039),
                               image: DecorationImage(
@@ -106,7 +105,7 @@ class HomeScreen extends StatelessWidget {
                                       color: Colors.white,
                                     ),
                                   ),
-                                  SizedBox(height: screenHeight * 0.05),
+                                  SizedBox(height: screenHeight * 0.03),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -200,7 +199,7 @@ class HomeScreen extends StatelessWidget {
                                 case 'English Premier League':
                                   imageAssetPath = 'assets/images/premier-bg.png';
                                   break;
-                                case 'Premier League':
+                                case 'English League Championship':
                                   imageAssetPath = 'assets/images/premier-bg.png';
                                   break;
                                 case 'Serie A':
@@ -219,7 +218,7 @@ class HomeScreen extends StatelessWidget {
                                   type: MaterialType.transparency,
                                   child: InkWell(
                                     onTap: () {
-                                      homeController.selectLeague(league.strLeague);
+                                      homeController.selectLeague(league.strLeague!);
                                       print('Selected league: ${league.strLeague}');
                                     },
                                     child: AnimatedContainer(
@@ -240,8 +239,8 @@ class HomeScreen extends StatelessWidget {
                                             child: Image.asset(
                                               imageAssetPath,
                                               fit: BoxFit.cover,
-                                              height: screenHeight * 0.07,
-                                              width: screenWidth * 0.1,
+                                              height: screenHeight * 0.9,
+                                              width: screenWidth * 0.09,
                                             ),
                                           ),
                                         ),
@@ -261,6 +260,65 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                 );
+              }
+            }),
+            SizedBox(height: 10,),
+            Obx(() {
+              if (homeController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (homeController.infoFootballModel.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
+                    child: Text('No teams available'),
+                  ),
+                );
+              } else {
+                final selectedLeague = homeController.selectedLeague.value;
+                final filteredTeams = homeController.infoFootballModel
+                    .where((match) => match.teams != null && match.teams!.isNotEmpty)
+                    .expand((match) => match.teams!)
+                    .where((team) => team.strLeague == selectedLeague)
+                    .toList();
+
+                if (filteredTeams.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                } else {
+                  return Expanded(
+                    child: ListView(
+                      children: filteredTeams.map((teamItem) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.grey.shade400),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Image.network(teamItem.strBadge ?? '', width: 50, height: 50),
+                                    SizedBox(width: 15),
+                                    Text(teamItem.strTeam ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }
               }
             }),
           ],
