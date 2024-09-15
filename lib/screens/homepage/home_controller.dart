@@ -18,9 +18,9 @@ class HomePageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchFootballList();
+    fetchFootballList([]);
     fetchLeagueList();
-    fetchEventList(['Arsenal_vs_Chelsea', 'Arsenal_vs_Everton', 'Arsenal_vs_Liverpool']);
+    fetchEventList(['Arsenal_vs_Chelsea']);
   }
 
   void changeIndex(int index) async {
@@ -29,26 +29,31 @@ class HomePageController extends GetxController {
 
   void selectLeague(String leagueName) {
     selectedLeague.value = leagueName;
+    fetchFootballList([leagueName]);
     update();
   }
 
-  Future<void> fetchFootballList() async {
+  Future<void> fetchFootballList(List<String> leagueNames) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<InfoFootballModel> allFootballData = [];
 
-      final response = await http.get(
-        Uri.parse('https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=English%20Premier%20League'),
-      );
+      for (String leagueName in leagueNames) {
+        final response = await http.get(
+          Uri.parse('https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=$leagueName'),
+        );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final InfoFootballModel footballModel = InfoFootballModel.fromJson(data);
-        infoFootballModel.value = [footballModel];
-        isLoading.value = false;
-        print('Data Football fetched successfully: ${infoFootballModel.length} items');
-      } else {
-        print('Failed to fetch data: ${response.statusCode}');
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final InfoFootballModel footballModel = InfoFootballModel.fromJson(data);
+          allFootballData.add(footballModel);
+        } else {
+          print('Failed to fetch data for $leagueName: ${response.statusCode}');
+        }
       }
+
+      infoFootballModel.value = allFootballData;
+      isLoading.value = false;
+      print('Data Football fetched successfully: ${infoFootballModel.length} items');
     } catch (e) {
       print('Error fetching data: $e');
       isLoading.value = false;
@@ -57,7 +62,6 @@ class HomePageController extends GetxController {
 
   Future<void> fetchEventList(List<String> eventNames) async {
     try {
-      isLoading.value = true; // Set loading to true before starting
       List<InfoEventModel> events = [];
 
       for (String eventName in eventNames) {
