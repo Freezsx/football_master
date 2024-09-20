@@ -40,11 +40,11 @@ class TeamListScreen extends StatelessWidget {
 
           return GridView.builder(
             padding: EdgeInsets.symmetric(horizontal: 10),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 10.0,
               mainAxisSpacing: 10.0,
-              childAspectRatio: 2 / 2.3,
+              childAspectRatio: screenWidth / (screenHeight * 0.65),
             ),
             itemCount: leagues.length,
             itemBuilder: (context, index) {

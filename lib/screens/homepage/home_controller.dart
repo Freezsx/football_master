@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:football_master/models/event_league_model.dart';
 import 'package:football_master/models/event_model.dart';
 import 'package:football_master/models/league_model.dart';
 import 'package:football_master/url/constant.dart';
@@ -11,6 +12,7 @@ class HomePageController extends GetxController {
   RxList<InfoFootballModel> infoFootballModel = <InfoFootballModel>[].obs;
   RxList<InfoLeagueModel> infoLeagueModel = <InfoLeagueModel>[].obs;
   RxList<InfoEventModel> infoEventModel = <InfoEventModel>[].obs;
+  RxList<InfoEventLeagueModel> infoEventLeagueModel = <InfoEventLeagueModel>[].obs;
   var isLoading = true.obs;
   var currentIndex = 0.obs;
   var selectedLeague = ''.obs;
@@ -20,6 +22,7 @@ class HomePageController extends GetxController {
     super.onInit();
     fetchFootballList([]);
     fetchLeagueList();
+    fetchEventLeagueList([]);
     fetchEventList(['Arsenal_vs_Chelsea']);
   }
 
@@ -57,6 +60,36 @@ class HomePageController extends GetxController {
     } catch (e) {
       print('Error fetching data: $e');
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchEventLeagueList(List<String> eventLeagueIds) async {
+    try {
+      List<InfoEventLeagueModel> events = [];
+
+      for (String eventId in eventLeagueIds) {
+        final Map<String, String> queryParams = {
+          'id': eventId,
+        };
+
+        final Uri url = Uri.https(baseUrl, pathEventLeague, queryParams);
+        final response = await http.get(url);
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final InfoEventLeagueModel eventModel = InfoEventLeagueModel.fromJson(data);
+          events.add(eventModel);
+        } else {
+          print('Failed to fetch data for $eventId: ${response.statusCode}');
+        }
+      }
+
+      infoEventLeagueModel.value = events; // Assign the fetched list to the observable
+      print('Data Events fetched successfully: ${infoEventLeagueModel.length} items');
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      isLoading.value = false; // Set loading to false after fetch completes
     }
   }
 
@@ -100,8 +133,32 @@ class HomePageController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final InfoLeagueModel leagueModel = InfoLeagueModel.fromJson(data);
-        infoLeagueModel.value = [leagueModel];
+        final List<dynamic> leagues = data['leagues'];
+
+        // Buat daftar nama liga yang diinginkan
+        final List<String> desiredLeagues = [
+          'English Premier League',
+          'English League Championship',
+          'Scottish Premier League',
+          'German Bundesliga',
+          'Italian Serie A',
+          'French Ligue 1',
+        ];
+
+        final List<String> leagueIds = leagues
+            .where((league) => desiredLeagues.contains(league['strLeague']))
+            .map((league) => league['idLeague'] as String)
+            .toList();
+
+        final List<InfoLeagueModel> leagueModels = leagues
+            .where((league) => desiredLeagues.contains(league['strLeague']))
+            .map((league) => InfoLeagueModel.fromJson({'leagues': [league]}))
+            .toList();
+
+        infoLeagueModel.value = leagueModels;
+
+        fetchEventLeagueList(leagueIds);
+
         isLoading.value = false;
         print('Data League fetched successfully: ${infoLeagueModel.length} items');
       } else {

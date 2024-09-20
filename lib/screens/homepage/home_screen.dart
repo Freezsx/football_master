@@ -12,6 +12,24 @@ class HomeScreen extends StatelessWidget {
 
   final HomePageController homeController = Get.find<HomePageController>();
 
+  String _formatDate(String date) {
+    try {
+      final DateTime parsedDate = DateTime.parse(date);
+      return DateFormat.EEEE().format(parsedDate);
+    } catch (e) {
+      return date;
+    }
+  }
+
+  String _formatTime(String time) {
+    try {
+      final List<String> timeParts = time.split(':');
+      return '${timeParts[0]}:${timeParts[1]}';
+    } catch (e) {
+      return time;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -200,13 +218,19 @@ class HomeScreen extends StatelessWidget {
                                   imageAssetPath = 'assets/images/premier-bg.png';
                                   break;
                                 case 'English League Championship':
-                                  imageAssetPath = 'assets/images/premier-bg.png';
+                                  imageAssetPath = 'assets/images/elc.png';
                                   break;
-                                case 'Serie A':
-                                  imageAssetPath = 'assets/images/premier-bg.png';
+                                case 'Scottish Premier League':
+                                  imageAssetPath = 'assets/images/spfl-2.png';
                                   break;
-                                case 'Bundesliga':
-                                  imageAssetPath = 'assets/images/premier-bg.png';
+                                case 'German Bundesliga':
+                                  imageAssetPath = 'assets/images/bundes-bg.png';
+                                  break;
+                                case 'Italian Serie A':
+                                  imageAssetPath = 'assets/images/italya-bg.png';
+                                  break;
+                                case 'French Ligue 1':
+                                  imageAssetPath = 'assets/images/ligue-bg.png';
                                   break;
                                 default:
                                   imageAssetPath = 'assets/images/premier-bg.png';
@@ -233,7 +257,7 @@ class HomeScreen extends StatelessWidget {
                                           margin: EdgeInsets.all(6),
                                           child: ColorFiltered(
                                             colorFilter: ColorFilter.mode(
-                                              isSelected ? Color(0xFFF8F8F8) : Color(0xFFC2C2C2),
+                                              isSelected ? Color(0xFFF8F8F8) : Color(0xFF091C3E),
                                               BlendMode.srcATop,
                                             ),
                                             child: Image.asset(
@@ -266,7 +290,7 @@ class HomeScreen extends StatelessWidget {
             Obx(() {
               if (homeController.isLoading.value) {
                 return const Center(child: CircularProgressIndicator());
-              } else if (homeController.infoFootballModel.isEmpty) {
+              } else if (homeController.infoEventLeagueModel.isEmpty) {
                 return Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
@@ -275,9 +299,9 @@ class HomeScreen extends StatelessWidget {
                 );
               } else {
                 final selectedLeague = homeController.selectedLeague.value;
-                final filteredTeams = homeController.infoFootballModel
-                    .where((match) => match.teams != null && match.teams!.isNotEmpty)
-                    .expand((match) => match.teams!)
+                final filteredTeams = homeController.infoEventLeagueModel
+                    .where((match) => match.events != null && match.events!.isNotEmpty)
+                    .expand((match) => match.events!)
                     .where((team) => team.strLeague == selectedLeague)
                     .toList();
 
@@ -302,14 +326,57 @@ class HomeScreen extends StatelessWidget {
                               border: Border.all(color: Colors.grey.shade400),
                             ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    Image.network(teamItem.strBadge ?? '', width: 50, height: 50),
-                                    SizedBox(width: 15),
-                                    Text(teamItem.strTeam ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  ],
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Image.network(teamItem.strHomeTeamBadge ?? '', width: 50, height: 50),
+                                      SizedBox(width: 15),
+                                      Expanded(
+                                        child: Text(
+                                          teamItem.strHomeTeam ?? '',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          maxLines: 2,
+                                          overflow: teamItem.strHomeTeam!.length > 6 ? TextOverflow.ellipsis : null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        _formatTime(teamItem.strTime ?? ''),
+                                        style: TextStyle(fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(height: 5,),
+                                      Text(
+                                        _formatDate(teamItem.dateEvent ?? ''),
+                                        style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey, fontSize: screenWidth * 0.03),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          teamItem.strAwayTeam ?? '',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.end,
+                                          maxLines: 2,
+                                          overflow: teamItem.strAwayTeam!.length > 6 ? TextOverflow.ellipsis : null,
+                                        ),
+                                      ),
+                                      SizedBox(width: 15),
+                                      Image.network(teamItem.strAwayTeamBadge ?? '', width: 50, height: 50),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
