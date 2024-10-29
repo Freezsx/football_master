@@ -8,4 +8,5 @@ class Routes {
   static const NAVBAR = '/navigation_menu';
   static const TEAMLIST_PAGE = '/teamlist_screen';
   static const PLAYER_PAGE = '/player_screen';
+  static const LEAGUE_DETAIL_PAGE = '/league_detail_screen';
 }

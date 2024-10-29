@@ -3,6 +3,8 @@ import 'package:football_master/screens/favoritepage/favorite_binding.dart';
 import 'package:football_master/screens/favoritepage/favorite_screen.dart';
 import 'package:football_master/screens/homepage/home_binding.dart';
 import 'package:football_master/screens/homepage/home_screen.dart';
+import 'package:football_master/screens/leaguedetailpage/league_detail_binding.dart';
+import 'package:football_master/screens/leaguedetailpage/league_detail_screen.dart';
 import 'package:football_master/screens/playerpage/player_binding.dart';
 import 'package:football_master/screens/playerpage/player_screen.dart';
 import 'package:football_master/screens/screen.dart';
@@ -42,5 +44,12 @@ class Nav {
       binding: PlayerBinding(),
       transition: Transition.noTransition,
     ),
+    GetPage(
+      name: Routes.LEAGUE_DETAIL_PAGE,
+      page: () => LeagueDetailScreen(), // The screen that will use the controller
+      binding: LeagueDetailBinding(['Premier League', 'La Liga']), // Provide league names here
+      transition: Transition.noTransition,
+    ),
+
   ];
 }
